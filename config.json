@@ -1,8 +1,8 @@
 {
   "detector": "venue_date",
-  "movie": "Jana Nayagan",
-  "requested_date": "20260723",
+  "movie": "Spider-Man: Brand New Day",
+  "requested_date": "20260803",
   "venue_codes": ["BCTP"],
   "venue_label": "Broadway, Tiruppur",
-  "url_template": "https://in.bookmyshow.com/movies/tiruppur/jana-nayagan/buytickets/ET00430817/{date}"
+  "url_template": "https://in.bookmyshow.com/movies/tiruppur/spider-man-brand-new-day/buytickets/ET00447840/{date}"
 }
