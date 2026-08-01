@@ -250,12 +250,29 @@ def is_available_generic(page_text, cfg):
     return has_open and not only_closed
 
 
+def deactivate_config():
+    """
+    Flip 'active' to false in the on-disk config.json (not the in-memory cfg,
+    which has secrets/env merged in -- we never want those written back).
+    """
+    raw = load_json(CONFIG_PATH, default={}) or {}
+    raw["active"] = False
+    save_json(CONFIG_PATH, raw)
+
+
 def main():
     cfg = load_config()
     state = load_json(STATE_PATH, default={"available": False}) or {"available": False}
 
     target_desc = cfg.get("theatre") or cfg.get("requested_date", "target")
     label = f"{cfg.get('movie', 'movie')} @ {target_desc}"
+
+    # Idle gate: skip the fetch entirely (no ScraperAPI/proxy call, no credits
+    # spent) unless explicitly activated in config.json. Defaults to active
+    # for backwards compatibility with configs that don't set this yet.
+    if not cfg.get("active", True):
+        print(f"[{label}] inactive -- skipping poll (set active: true in config.json to resume)")
+        return 0
 
     try:
         page = fetch(cfg)
@@ -289,6 +306,8 @@ def main():
             )
         send_telegram(cfg["telegram_bot_token"], cfg["telegram_chat_id"], msg)
         print(f"[{label}] notification sent")
+        deactivate_config()
+        print(f"[{label}] auto-paused (active: false) -- edit config.json to track the next one")
 
     # Persist current state so we don't re-alert every run.
     if available != state.get("available"):
